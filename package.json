@@ -1,0 +1,25 @@
+{
+  "name": "copy-of-bastidores-do-agro-cms---versão-next.js",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.48.1",
+    "@tailwindcss/postcss": "^4.2.1",
+    "lucide-react": "0.474.0",
+    "next": "^16.1.4",
+    "postcss": "^8.5.6",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "typescript": "~5.8.2"
+  }
+}

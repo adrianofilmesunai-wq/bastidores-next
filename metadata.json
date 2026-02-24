@@ -1,0 +1,8 @@
+{
+  "name": "Bastidores do Agro",
+  "description": "Portal de notícias estratégicas e bastidores do agronegócio brasileiro, agora com Next.js para melhor SEO e compartilhamento.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

@@ -6,8 +6,12 @@ import { supabase } from '@/supabaseClient';
 import { Artigo, FluxoRSS, Ajuste, Anuncio, Categoria } from '@/types';
 import { slugify } from '@/lib/utils';
 import { 
-  FileText, Rss, Settings, Plus, Trash2, Edit, Megaphone, Tag, FolderTree, ChevronDown
+  FileText, Rss, Settings, Plus, Trash2, Edit, Megaphone, Tag, FolderTree, ChevronDown, Eye, Code, Link as LinkIcon
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import 'react-quill-new/dist/quill.snow.css';
+
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'artigos' | 'categorias' | 'rss' | 'anuncios' | 'ajustes'>('artigos');
@@ -17,11 +21,13 @@ export default function AdminPage() {
   const [ajustes, setAjustes] = useState<Ajuste[]>([]);
   const [anuncios, setAnuncios] = useState<Anuncio[]>([]);
   const [loading, setLoading] = useState(false);
+  const [displayLimit, setDisplayLimit] = useState(20);
+  const [editorMode, setEditorMode] = useState<'visual' | 'html'>('visual');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const router = useRouter();
 
-  const [artigoForm, setArtigoForm] = useState({ title: '', content: '', thumb_url: '', read_more_link: '', category: '' });
+  const [artigoForm, setArtigoForm] = useState({ title: '', content: '', thumb_url: '', read_more_link: '', category: '', published: true, show_reporter: true });
   const [catForm, setCatForm] = useState({ nome: '' });
   const [rssForm, setRssForm] = useState({ source_name: '', url: '' });
   const [anuncioForm, setAnuncioForm] = useState({ nome: '', imagem_url: '', link_externo: '' });
@@ -83,7 +89,7 @@ export default function AdminPage() {
       }
       setIsFormOpen(false);
       setEditingId(null);
-      setArtigoForm({ title: '', content: '', thumb_url: '', read_more_link: '', category: categories[0]?.nome || '' });
+      setArtigoForm({ title: '', content: '', thumb_url: '', read_more_link: '', category: categories[0]?.nome || '', published: true, show_reporter: true });
       await loadData();
     } catch (err: any) { alert(err.message); }
     finally { setLoading(false); }
@@ -124,6 +130,20 @@ export default function AdminPage() {
     finally { setLoading(false); }
   };
 
+  const handleTogglePublished = async (id: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('artigos')
+        .update({ published: !currentStatus })
+        .eq('id', id);
+      
+      if (error) throw error;
+      setArticles(prev => prev.map(art => art.id === id ? { ...art, published: !currentStatus } : art));
+    } catch (err: any) {
+      alert('Erro ao atualizar status: ' + err.message);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-10 min-h-screen">
       <div className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -155,7 +175,7 @@ export default function AdminPage() {
             <button 
               onClick={() => { 
                 setEditingId(null); 
-                setArtigoForm({ title: '', content: '', thumb_url: '', read_more_link: '', category: categories[0]?.nome || 'Agronegócio' }); 
+                setArtigoForm({ title: '', content: '', thumb_url: '', read_more_link: '', category: categories[0]?.nome || 'Agronegócio', published: true, show_reporter: true }); 
                 setIsFormOpen(true); 
               }} 
               className="bg-green-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 font-bold shadow-lg shadow-green-700/20 hover:bg-green-800 transition-all"
@@ -190,13 +210,100 @@ export default function AdminPage() {
                      </div>
                    </div>
                  </div>
-                 <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">URL da Imagem de Capa</label>
-                    <input required value={artigoForm.thumb_url} onChange={e => setArtigoForm({...artigoForm, thumb_url: e.target.value})} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all" placeholder="Ex: https://imagem.com/foto.jpg" />
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div className="space-y-2">
+                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">URL da Imagem de Capa</label>
+                     <input required value={artigoForm.thumb_url} onChange={e => setArtigoForm({...artigoForm, thumb_url: e.target.value})} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all" placeholder="Ex: https://imagem.com/foto.jpg" />
+                   </div>
+                   <div className="space-y-2">
+                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Status de Publicação</label>
+                     <div className="flex items-center gap-4 p-4 bg-gray-50 border border-gray-200 rounded-2xl h-[58px]">
+                        <span className={`text-xs font-bold uppercase tracking-widest ${artigoForm.published ? 'text-green-600' : 'text-gray-400'}`}>
+                          {artigoForm.published ? 'Online (Visível no site)' : 'Offline (Oculto)'}
+                        </span>
+                        <button 
+                          type="button"
+                          onClick={() => setArtigoForm({...artigoForm, published: !artigoForm.published})}
+                          className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ml-auto ${artigoForm.published ? 'bg-green-600' : 'bg-gray-300'}`}
+                        >
+                          <div className={`w-4 h-4 bg-white rounded-full shadow-sm transform transition-transform duration-200 ease-in-out ${artigoForm.published ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                        </button>
+                     </div>
+                   </div>
+                 </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div className="space-y-2">
+                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Link Externo (Fonte Original)</label>
+                     <div className="relative">
+                       <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                       <input value={artigoForm.read_more_link} onChange={e => setArtigoForm({...artigoForm, read_more_link: e.target.value})} className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all" placeholder="Ex: https://canalrural.com.br/noticia..." />
+                     </div>
+                   </div>
+                   <div className="space-y-2">
+                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Exibir Repórter</label>
+                     <div className="flex items-center gap-4 p-4 bg-gray-50 border border-gray-200 rounded-2xl h-[58px]">
+                        <span className={`text-xs font-bold uppercase tracking-widest ${artigoForm.show_reporter ? 'text-green-600' : 'text-gray-400'}`}>
+                          {artigoForm.show_reporter ? 'Sim (Giancarlo Faria)' : 'Não'}
+                        </span>
+                        <button 
+                          type="button"
+                          onClick={() => setArtigoForm({...artigoForm, show_reporter: !artigoForm.show_reporter})}
+                          className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ml-auto ${artigoForm.show_reporter ? 'bg-green-600' : 'bg-gray-300'}`}
+                        >
+                          <div className={`w-4 h-4 bg-white rounded-full shadow-sm transform transition-transform duration-200 ease-in-out ${artigoForm.show_reporter ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                        </button>
+                     </div>
+                   </div>
                  </div>
                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Conteúdo Completo</label>
-                    <textarea required rows={10} value={artigoForm.content} onChange={e => setArtigoForm({...artigoForm, content: e.target.value})} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all resize-none" placeholder="Escreva aqui o corpo da notícia..."></textarea>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Conteúdo Completo</label>
+                      <div className="flex bg-gray-100 p-1 rounded-lg border border-gray-200">
+                        <button 
+                          type="button"
+                          onClick={() => setEditorMode('visual')}
+                          className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all flex items-center gap-1 ${editorMode === 'visual' ? 'bg-white text-green-700 shadow-sm' : 'text-gray-500'}`}
+                        >
+                          <Eye size={12} /> Visual
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => setEditorMode('html')}
+                          className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all flex items-center gap-1 ${editorMode === 'html' ? 'bg-white text-green-700 shadow-sm' : 'text-gray-500'}`}
+                        >
+                          <Code size={12} /> HTML
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {editorMode === 'visual' ? (
+                      <div className="bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden">
+                        <ReactQuill 
+                          theme="snow"
+                          value={artigoForm.content}
+                          onChange={(content) => setArtigoForm({...artigoForm, content})}
+                          className="h-80 mb-12"
+                          modules={{
+                            toolbar: [
+                              [{ 'header': [1, 2, 3, false] }],
+                              ['bold', 'italic', 'underline', 'strike'],
+                              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                              ['link', 'image', 'video'],
+                              ['clean']
+                            ],
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <textarea 
+                        required 
+                        rows={15} 
+                        value={artigoForm.content} 
+                        onChange={e => setArtigoForm({...artigoForm, content: e.target.value})} 
+                        className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all font-mono text-sm" 
+                        placeholder="Cole aqui o código HTML da notícia..."
+                      ></textarea>
+                    )}
                  </div>
                  <div className="flex justify-end gap-3 pt-4">
                    <button type="button" onClick={() => setIsFormOpen(false)} className="px-8 py-3 font-bold text-gray-500 hover:text-gray-700">Cancelar</button>
@@ -215,30 +322,69 @@ export default function AdminPage() {
                 <p className="text-gray-400 font-medium">Nenhuma matéria cadastrada ainda.</p>
               </div>
             ) : (
-              articles.map(art => (
-                <div key={art.id} className="bg-white p-4 rounded-2xl border border-gray-100 flex justify-between items-center group hover:shadow-md transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
-                      <img src={art.thumb_url} className="w-full h-full object-cover" />
+              <>
+                {articles.slice(0, displayLimit).map(art => (
+                  <div key={art.id} className="bg-white p-4 rounded-2xl border border-gray-100 flex justify-between items-center group hover:shadow-md transition-all">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+                        <img src={art.thumb_url} className="w-full h-full object-cover" />
+                      </div>
+                      <div>
+                        <span className="font-bold block text-gray-800 text-lg line-clamp-1">{art.title}</span>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-[10px] uppercase font-bold text-green-700 bg-green-50 px-2.5 py-1 rounded-lg border border-green-100">
+                            {art.category || 'Sem Categoria'}
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-medium">
+                            {new Date(art.created_at).toLocaleDateString('pt-BR')}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <span className="font-bold block text-gray-800 text-lg line-clamp-1">{art.title}</span>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-[10px] uppercase font-bold text-green-700 bg-green-50 px-2.5 py-1 rounded-lg border border-green-100">
-                          {art.category || 'Sem Categoria'}
+                    <div className="flex items-center gap-4 pr-2">
+                      <div className="flex items-center gap-2 mr-4">
+                        <span className={`text-[10px] font-bold uppercase tracking-widest ${art.published ? 'text-green-600' : 'text-gray-400'}`}>
+                          {art.published ? 'Online' : 'Offline'}
                         </span>
-                        <span className="text-[10px] text-gray-400 font-medium">
-                          {new Date(art.created_at).toLocaleDateString('pt-BR')}
-                        </span>
+                        <button 
+                          onClick={() => handleTogglePublished(art.id, !!art.published)}
+                          className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out ${art.published ? 'bg-green-600' : 'bg-gray-300'}`}
+                        >
+                          <div className={`w-4 h-4 bg-white rounded-full shadow-sm transform transition-transform duration-200 ease-in-out ${art.published ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                        </button>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button onClick={() => { 
+                          setArtigoForm({
+                            title: art.title,
+                            content: art.content,
+                            thumb_url: art.thumb_url,
+                            read_more_link: art.read_more_link || '',
+                            category: art.category,
+                            published: !!art.published,
+                            show_reporter: art.show_reporter !== false // Default to true if undefined
+                          }); 
+                          setEditingId(art.id); 
+                          setIsFormOpen(true); 
+                        }} className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors" title="Editar"><Edit size={20} /></button>
+                        <button onClick={async () => { if(confirm('Excluir esta matéria permanentemente?')) { await supabase.from('artigos').delete().eq('id', art.id); loadData(); } }} className="p-2.5 text-red-600 hover:bg-red-50 rounded-xl transition-colors" title="Excluir"><Trash2 size={20} /></button>
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2 pr-2">
-                    <button onClick={() => { setArtigoForm(art); setEditingId(art.id); setIsFormOpen(true); }} className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors" title="Editar"><Edit size={20} /></button>
-                    <button onClick={async () => { if(confirm('Excluir esta matéria permanentemente?')) { await supabase.from('artigos').delete().eq('id', art.id); loadData(); } }} className="p-2.5 text-red-600 hover:bg-red-50 rounded-xl transition-colors" title="Excluir"><Trash2 size={20} /></button>
+                ))}
+                
+                {articles.length > displayLimit && (
+                  <div className="mt-8 flex justify-center">
+                    <button 
+                      onClick={() => setDisplayLimit(prev => prev + 20)}
+                      className="text-green-700 font-bold text-sm hover:underline uppercase tracking-widest"
+                    >
+                      Carregar mais 20 matérias
+                    </button>
                   </div>
-                </div>
-              ))
+                )}
+              </>
             )}
           </div>
         </div>

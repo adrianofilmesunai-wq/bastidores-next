@@ -137,7 +137,15 @@ export default function HomePage() {
     const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
     try {
       const response = await fetch(apiUrl);
-      const data = await response.json();
+      const text = await response.text();
+      
+      // Proteção contra erro "undefined" is not valid JSON
+      if (!text || text === 'undefined') {
+        console.warn('YouTube API returned empty or undefined response');
+        return;
+      }
+
+      const data = JSON.parse(text);
       if (data.items) {
         setYoutubeVideos(data.items.slice(0, 10).map((item: any) => ({
           id: item.guid.split(':')[2] || item.link.split('v=')[1],

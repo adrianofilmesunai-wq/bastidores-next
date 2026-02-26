@@ -11,7 +11,37 @@ import {
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
 
-const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
+const ReactQuill = dynamic(
+  async () => {
+    const { default: RQ, Quill } = await import("react-quill-new");
+    const BlockEmbed = Quill.import('blots/block/embed') as any;
+    
+    class VideoBlot extends BlockEmbed {
+      static blotName = 'video';
+      static tagName = 'iframe';
+
+      static create(url: string) {
+        let node = super.create();
+        node.setAttribute('src', url);
+        node.setAttribute('frameborder', '0');
+        node.setAttribute('allowfullscreen', 'true');
+        node.setAttribute('width', '100%');
+        node.setAttribute('height', '400');
+        node.setAttribute('class', 'ql-video');
+        node.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+        return node;
+      }
+
+      static value(node: HTMLElement) {
+        return node.getAttribute('src');
+      }
+    }
+    Quill.register(VideoBlot, true);
+    
+    return RQ;
+  },
+  { ssr: false }
+);
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'artigos' | 'categorias' | 'rss' | 'anuncios' | 'ajustes'>('artigos');
@@ -69,8 +99,16 @@ export default function AdminPage() {
           }
         },
         video: function(this: any) {
-          let url = prompt("Insira a URL do vídeo do YouTube:");
+          let url = prompt("Insira a URL do vídeo do YouTube (ou o código de incorporação):");
           if (url) {
+            // Se o usuário colou o código completo do iframe, extrai apenas o src
+            if (url.includes('<iframe')) {
+              const match = url.match(/src="([^"]+)"/);
+              if (match && match[1]) {
+                url = match[1];
+              }
+            }
+            
             // Converte links comuns do YouTube para formato embed
             if (url.includes('youtube.com/watch?v=')) {
               url = url.replace('watch?v=', 'embed/');
@@ -88,6 +126,9 @@ export default function AdminPage() {
           }
         }
       }
+    },
+    clipboard: {
+      matchVisual: false,
     }
   }), []);
 

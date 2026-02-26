@@ -26,3 +26,27 @@
 .animate-loading {
   animation: loading 1.5s ease-in-out infinite;
 }
+
+/* Ajustes para o editor Quill */
+.ql-editor {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap !important;
+  overflow-x: hidden;
+  text-align: left;
+}
+
+.ql-editor * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  white-space: normal !important; /* Força quebra de linha em elementos internos */
+  width: auto !important; /* Previne larguras fixas do Word */
+}
+
+/* Mantém o comportamento original para imagens e vídeos */
+.ql-editor img, .ql-editor iframe {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin: 10px auto;
+}

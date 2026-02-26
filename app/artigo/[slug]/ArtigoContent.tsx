@@ -170,6 +170,13 @@ const ArtigoContent: React.FC<Props> = ({ slug }) => {
         .article-content-render img { border-radius: 1.5rem; margin: 2rem 0; width: 100%; height: auto; object-fit: cover; }
         .article-content-render p { margin-bottom: 1.5rem; }
         .article-content-render a { color: #15803d; font-weight: bold; text-decoration: underline; }
+        .article-content-render iframe.ql-video {
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          border-radius: 1.5rem;
+          margin: 2rem 0;
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
       `}</style>
     </div>
   );

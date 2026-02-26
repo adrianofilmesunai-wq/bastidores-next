@@ -1,6 +1,6 @@
 
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/supabaseClient';
 import { Artigo, FluxoRSS, Ajuste, Anuncio, Categoria } from '@/types';
@@ -26,6 +26,51 @@ export default function AdminPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const router = useRouter();
+
+  const modules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['link', 'image', 'video'],
+        ['clean']
+      ],
+      handlers: {
+        image: function(this: any) {
+          const choice = confirm("Deseja carregar uma imagem do computador? (Cancelar para inserir link externo)");
+          
+          if (choice) {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.click();
+            input.onchange = async () => {
+              const file = input.files?.[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                  const range = this.quill.getSelection();
+                  if (range) {
+                    this.quill.insertEmbed(range.index, 'image', reader.result);
+                  }
+                };
+                reader.readAsDataURL(file);
+              }
+            };
+          } else {
+            const url = prompt("Insira a URL da imagem:");
+            if (url) {
+              const range = this.quill.getSelection();
+              if (range) {
+                this.quill.insertEmbed(range.index, 'image', url);
+              }
+            }
+          }
+        }
+      }
+    }
+  }), []);
 
   const [artigoForm, setArtigoForm] = useState({ title: '', content: '', thumb_url: '', read_more_link: '', category: '', published: true, show_reporter: true });
   const [catForm, setCatForm] = useState({ nome: '' });
@@ -283,15 +328,7 @@ export default function AdminPage() {
                           value={artigoForm.content}
                           onChange={(content) => setArtigoForm({...artigoForm, content})}
                           className="h-80 mb-12"
-                          modules={{
-                            toolbar: [
-                              [{ 'header': [1, 2, 3, false] }],
-                              ['bold', 'italic', 'underline', 'strike'],
-                              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                              ['link', 'image', 'video'],
-                              ['clean']
-                            ],
-                          }}
+                          modules={modules}
                         />
                       </div>
                     ) : (

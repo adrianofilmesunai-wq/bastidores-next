@@ -168,7 +168,7 @@ const ArtigoContent: React.FC<Props> = ({ slug }) => {
 
       <style jsx global>{`
         .article-content-render {
-          word-break: break-word;
+          word-break: normal;
           overflow-wrap: break-word;
           text-align: left;
         }

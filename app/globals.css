@@ -29,7 +29,7 @@
 
 /* Ajustes para o editor Quill */
 .ql-editor {
-  word-break: break-word;
+  word-break: normal;
   overflow-wrap: break-word;
   white-space: pre-wrap !important;
   overflow-x: hidden;

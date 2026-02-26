@@ -208,7 +208,6 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 w-full relative z-10 h-full flex items-center">
           <div className="w-full h-auto py-4">
             <div className="absolute top-1 right-4 flex space-x-3">
-              <a href={ajustes['facebook_url'] || '#'} target="_blank" className="bg-white/10 hover:bg-green-600 p-2 rounded-full transition-all"><Facebook size={13} /></a>
               <a href={ajustes['instagram_url'] || '#'} target="_blank" className="bg-white/10 hover:bg-green-600 p-2 rounded-full transition-all"><Instagram size={13} /></a>
               <a href={`https://wa.me/${ajustes['whatsapp_num'] || ''}`} target="_blank" className="bg-white/10 hover:bg-green-600 p-2 rounded-full transition-all"><MessageCircle size={13} /></a>
             </div>

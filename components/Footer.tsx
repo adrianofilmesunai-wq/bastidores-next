@@ -37,7 +37,6 @@ const Footer: React.FC = () => {
               O portal Bastidores do Agro traz informação estratégica, análises de mercado e os bastidores de quem move o agronegócio brasileiro.
             </p>
             <div className="flex space-x-4">
-              <a href={ajustes['facebook_url'] || '#'} target="_blank" rel="noopener noreferrer" className="bg-white/5 hover:bg-green-600 p-3 rounded-full transition-all border border-white/10"><Facebook size={20} /></a>
               <a href={ajustes['instagram_url'] || '#'} target="_blank" rel="noopener noreferrer" className="bg-white/5 hover:bg-green-600 p-3 rounded-full transition-all border border-white/10"><Instagram size={20} /></a>
               <a href={`https://wa.me/${ajustes['whatsapp_num'] || ''}`} target="_blank" rel="noopener noreferrer" className="bg-white/5 hover:bg-green-600 p-3 rounded-full transition-all border border-white/10"><MessageCircle size={20} /></a>
             </div>

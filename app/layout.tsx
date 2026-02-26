@@ -16,6 +16,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.bastidoresdoagro.com.br"),
   title: "Bastidores do Agro",
   description: "Informação estratégica, bastidores e análises do agro brasileiro.",
   openGraph: {
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
     images: ["https://i.ibb.co/XxLvt9GD/bandeira-completa.png"],
     url: "https://www.bastidoresdoagro.com.br",
     type: "website",
+    siteName: "Bastidores do Agro",
   },
   twitter: {
     card: "summary_large_image",

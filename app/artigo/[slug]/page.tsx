@@ -32,8 +32,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       };
     }
 
-    // Limpar HTML do conteúdo para a descrição se necessário, ou usar um resumo
-    const description = artigo.title;
+    // Limpar HTML do conteúdo para a descrição
+    const description = artigo.content 
+      ? artigo.content.replace(/<[^>]*>/g, '').substring(0, 160) + '...'
+      : artigo.title;
 
     return {
       title: `${artigo.title} | Bastidores do Agro`,
@@ -41,8 +43,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         title: artigo.title,
         description: description,
-        images: [artigo.thumb_url],
+        images: [
+          {
+            url: artigo.thumb_url,
+            width: 1200,
+            height: 630,
+            alt: artigo.title,
+          },
+        ],
         type: 'article',
+        url: `https://www.bastidoresdoagro.com.br/artigo/${slug}`,
       },
       twitter: {
         card: 'summary_large_image',

@@ -70,11 +70,6 @@ const Footer: React.FC = () => {
           <p className="text-[11px] text-green-100/30 uppercase tracking-[0.2em]">
             © {new Date().getFullYear()} Bastidores do Agro. Todos os direitos reservados.
           </p>
-          <div className="flex items-center gap-6">
-            <Link href="/login" className="text-green-100/20 hover:text-white transition-colors flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
-              <Lock size={14} /> Acesso Restrito
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

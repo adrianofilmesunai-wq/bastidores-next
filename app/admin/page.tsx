@@ -67,10 +67,36 @@ export default function AdminPage() {
               }
             }
           }
+        },
+        video: function(this: any) {
+          let url = prompt("Insira a URL do vídeo do YouTube:");
+          if (url) {
+            // Converte links comuns do YouTube para formato embed
+            if (url.includes('youtube.com/watch?v=')) {
+              url = url.replace('watch?v=', 'embed/');
+              // Remove parâmetros extras como &t= ou &ab_channel
+              url = url.split('&')[0];
+            } else if (url.includes('youtu.be/')) {
+              url = url.replace('youtu.be/', 'youtube.com/embed/');
+              url = url.split('?')[0];
+            }
+            
+            const range = this.quill.getSelection();
+            if (range) {
+              this.quill.insertEmbed(range.index, 'video', url);
+            }
+          }
         }
       }
     }
   }), []);
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'link', 'image', 'video'
+  ];
 
   const [artigoForm, setArtigoForm] = useState({ title: '', content: '', thumb_url: '', read_more_link: '', category: '', published: true, show_reporter: true });
   const [catForm, setCatForm] = useState({ nome: '' });
@@ -329,6 +355,7 @@ export default function AdminPage() {
                           onChange={(content) => setArtigoForm({...artigoForm, content})}
                           className="h-80 mb-12"
                           modules={modules}
+                          formats={formats}
                         />
                       </div>
                     ) : (

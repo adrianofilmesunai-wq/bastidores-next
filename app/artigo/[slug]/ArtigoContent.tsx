@@ -167,16 +167,6 @@ const ArtigoContent: React.FC<Props> = ({ slug }) => {
       )}
 
       <style jsx global>{`
-        .article-content-render {
-          word-break: normal;
-          overflow-wrap: break-word;
-          text-align: left;
-        }
-        .article-content-render * {
-          max-width: 100% !important;
-          box-sizing: border-box !important;
-          white-space: normal !important;
-        }
         .article-content-render img { border-radius: 1.5rem; margin: 2rem 0; width: 100%; height: auto; object-fit: cover; }
         .article-content-render p { margin-bottom: 1.5rem; }
         .article-content-render a { color: #15803d; font-weight: bold; text-decoration: underline; }

@@ -78,7 +78,7 @@ const ArtigoContent: React.FC<Props> = ({ slug }) => {
         <AdRenderer index={0} />
 
         <header className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 leading-tight mb-6">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 leading-tight mb-6 break-words">
             {artigo.title}
           </h1>
 
@@ -108,7 +108,7 @@ const ArtigoContent: React.FC<Props> = ({ slug }) => {
 
         {/* Renderização de HTML interpretado para matérias RSS e manuais */}
         <div 
-          className="prose prose-lg max-w-none text-gray-700 leading-relaxed font-light text-xl mb-12 article-content-render"
+          className="max-w-none text-gray-700 leading-relaxed mb-12 article-content-render break-words"
           dangerouslySetInnerHTML={{ __html: artigo.content }}
         />
 
@@ -165,27 +165,6 @@ const ArtigoContent: React.FC<Props> = ({ slug }) => {
           </div>
         </div>
       )}
-
-      <style jsx global>{`
-        .article-content-render img { border-radius: 1.5rem; margin: 2rem 0; width: 100%; height: auto; object-fit: cover; }
-        .article-content-render p { margin-bottom: 1.5rem; }
-        .article-content-render a { color: #15803d; font-weight: bold; text-decoration: underline; }
-        .article-content-render iframe, 
-        .article-content-render iframe.ql-video {
-          width: 100% !important;
-          aspect-ratio: 16 / 9;
-          border-radius: 1.5rem;
-          margin: 2rem 0;
-          display: block;
-          border: none;
-          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-        .article-content-render video {
-          width: 100%;
-          border-radius: 1.5rem;
-          margin: 2rem 0;
-        }
-      `}</style>
     </div>
   );
 };

@@ -135,7 +135,7 @@ export default function AdminPage() {
   const formats = [
     'header',
     'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
+    'list',
     'link', 'image', 'video'
   ];
 
@@ -389,12 +389,12 @@ export default function AdminPage() {
                     </div>
                     
                     {editorMode === 'visual' ? (
-                      <div className="bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden">
+                      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm min-h-[600px] p-1">
                         <ReactQuill 
                           theme="snow"
                           value={artigoForm.content}
                           onChange={(content) => setArtigoForm({...artigoForm, content})}
-                          className="h-80 mb-12"
+                          className="h-full"
                           modules={modules}
                           formats={formats}
                         />
